@@ -1,64 +1,57 @@
-*{
-  padding: 0;
-  margin: 0;
-  color: #fff;
-  background-color: #000;
+* {
+  background-color: black;
+  color: white;
+  font-family: 'Mochiy Pop P One', sans-serif;
+  font-size: large;
 }
 #body-container {
-    width: 100%;
-    height: 100vh;
-}
-#body-header {
-    display: block;
-    margin: 0 auto;
-    padding: 0 auto; 
-    width: 100%;
-    height:75px;
-}
-#menu-header{
-  width: 100%;
-  height:75px;
-  margin: 0 auto;
-  padding: 7px;
-  color:#dbaa3e;
-  float:left;
-}
-#header-logo{
-    float: right;
-    margin: 3px;
-    padding: 3px;
-}
-
-#menu-list{
-    list-style: none;
-    margin: 0;
-    margin-left: 7px;
-    padding: 0;
-    background-color: #000;
-}
-ul#menu-list li {
-    text-align: center;
-    display: inline;
     margin: 7px;
-    color: #fff;
 }
-ul#menu-list li a {
-    margin: 3px;
-    color: #fff;
-    text-decoration: inherit;
-    font-size: xx-large;
-  }
-  .menu-select {
-    border-bottom: 5px solid #dbaa3e;
-  }
+#body-header{
+   height: 250px;
+} 
+#header-logo{ 
+    padding: 1%;
+    width: 98%;
+    height: 98%;
+}
 
-  #container-navigation {
-      width: 100%;
-  }
+#loading{ 
+  width: 50%;
+  margin-left: 25%;
+} 
 
-  #container-navigation  button{
-    margin-left: 10%;
-    width: 100px;
-    display:inline;   
-  }
-
+ul{
+  list-style: none;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+  color:#ffe100;
+}
+h1{
+  color: #FFE300;
+}
+.episode-number {
+  border: solid 3px #FFE300;
+  background-color: #FFE300;
+  border-radius: 77px;
+  margin: 3px;
+  padding: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+  color: black;
+  font-size: x-large;
+}
+.title {
+  color: #FFE300;
+  font-size: xx-large;
+}
+.sub-title {
+  color: #f11414;
+  font-size: x-large;
+}
+.sub-item{
+  color: #1f6eff;
+}

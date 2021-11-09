@@ -1,68 +1,108 @@
-var menuItens = [
-    {name: "People",  path: "/people/", img:"imgs/people.png"},
-    {name: "Films",  path: "/films/", img:"imgs/films.png"},
-    {name: "Species",  path: "/species/", img:"imgs/species.png"},
-    {name: "Vehicles",  path: "/vehicles/", img:"imgs/vehicles.png"},
-    {name: "Starships",  path: "/starships/", img:"imgs/starships.png"}
-]; 
-const menuID = "#menu-list";
-const containerID = "#body-menu";
-const menuSelect = 0;
+ 
+
+const LOADER = "<img src='imgs/loader.gif' id='loading'></img>";
+const containerID = "#body-container";
 $( document ).ready(function() {
     onCreate().then(console.log('onCreateComplete...'));
 });
  
 var onCreate = () => {
-    return new Promise((resolve, rejecty)=>{
-        menuItens.
-            map(function(value, i) {
-                $( menuID ).append( "<li id=\"menu-item-"+i+"\"> <a href=\"#\" onclick=\"openMenu("+i+");\">"+value.name+"</a></li>" );
-            }).
-            then( resolve({sucess:1}) );
+    return new Promise((resolve, reject) => {
+        loadFilmList().
+            then(r => resolve(r)).
+            catch(e => reject(e));    
     });
 };
 
-function openMenu(item){
-    $("#menu-item-"+this.menuSelect).removeClass("menu-select");
-    this.menuSelect = item;
-    let menu = this.menuItens[item];
-    $("#menu-item-"+item).addClass("menu-select");
-    $(containerID).html("<h1> Carregando... </h1>")
-    loadPath(menu.path).
-        then(r =>{
-            console.log('sucess loadPath');
-            console.log(r);
-            showDataByType(r, item).
-                then(sucess => console.log('complete showDataByType...')).
-                catch(er => console.log(er));
+var loadFilmList = () => {
+    return new Promise((resolve, reject) => {
+        $(containerID).html(LOADER);  
+        loadPath('https://swapi.dev/api/films/').
+        then(data => { 
+            createFilmList(data).
+            then(r => resolve(r)).
+            catch(e => reject(e));
         }).
-        catch(e => console.log(e));
-    return false;
-}
-
-var showDataByType = ( data, type ) => {
-    if( type == 0){
-        return updatePeoples(data);
-    }else if(type == 1){
-        return updateFilms(data);
-    }else if(type == 2){
-        return updateSpecies(data);
-    }else if(type == 3){
-        return updateVehicles(data);
-    }else if(type == 4){
-        return updateStarships(data);
-    }
+        catch(e => alert(e));
+    });
 };
 
-
-
-var loadPath = (method) => {
+var createFilmList = (data) => {
     return new Promise((resolve, reject) => {
-        let url = ("https://swapi.dev/api"+method);
-        console.log(url);
+            $(containerID).html("<h1 class='title'> FILMS </h1> <ul id=\"film-list\"> </ul>");
+            data.results.map(it => $("#film-list").
+                append("<li><h3> <a href='#' onclick=\"openFilm('"+it.url+"')\"> 🎞 "+it.title+"</h3> </li>")).
+                    then(resolve({ok:1}));   
+    });
+};
+
+var openFilm = (url) => {
+    console.log(url);
+    $(containerID).html(LOADER);
+    createFilmItem(url).
+        then(r => console.log('load file item . . .')).
+        catch(e => console.log(e));
+};
+
+var createFilmItem = (url) => {
+    return new Promise((resolve, reject)=>{
+        loadPath(url).
+        then(data => {
+            $(containerID).html("<a href='#' class='button-back' onclick='loadFilmList();'> [ BACK] </a>");
+            $(containerID).append("<p><b class='episode-number'> "+data.episode_id+
+            "</b> <span class='title'>"+data.title+"</span></p>");
+            $(containerID).append("<p>Director : <b class='sub-item'>"+data.director+"</b></p>");
+            $(containerID).append("<p>Producer : <b class='sub-item'>"+data.producer+"</b></p>");
+            $(containerID).append("<p>Release date : <b class='sub-item'>"+data.release_date+"</b></p>");
+            $(containerID).append("<p class='sub-title'>Opening crawl</p> <p>"+data.opening_crawl+"</p>");
+            $(containerID).append("<p class='sub-title'>Characters</p> <ul id='characters'> </ul>");
+            createCharactersToFilm(data.characters).then();
+            $(containerID).append("<p class='sub-title'>Planets</p> <ul id='planets'> </ul>");
+            createItemToFilm(data.planets, "#planets").then();
+            $(containerID).append("<p class='sub-title'>Starships</p> <ul id='starships'> </ul>");
+            createItemToFilm(data.starships, "#starships").then();
+            $(containerID).append("<p class='sub-title'>Vehicles</p> <ul id='vehicles'> </ul>");
+            createItemToFilm(data.vehicles, "#vehicles").then();
+            $(containerID).append("<p class='sub-title'>Species</p> <ul id='species'> </ul>");
+            createItemToFilm(data.species, "#species").then();            
+            resolve(1);
+        }).catch(e => reject(e));
+    });
+}
+var createItemToFilm = (planets, container) => {
+    return new Promise((resolve, reject) =>{
+        const promises = planets.map((it)=> loadPath(it));
+            Promise.allSettled(promises).
+                then((results)=> results.
+                    map(
+                        (it)=> $(container).
+                        append("<li> "+it.value.name+" </li>") 
+                    ) 
+                );
+        resolve(1);            
+    });
+};
+var createCharactersToFilm = (characters) => {
+    return new Promise((resolve, reject) =>{
+        const promises = characters.map((it)=> loadPath(it));
+            Promise.allSettled(promises).
+                then((results)=> results.
+                    map(
+                        (it)=> $("#characters").
+                        append("<li> "+it.value.name+" </li>") 
+                    ) 
+                );
+        resolve(1);            
+    });
+
+}
+
+var loadPath = (url) => {
+    return new Promise((resolve, reject) => { 
         $.ajax({
             type: 'GET',
-            url: url
+            url: url,
+            cache: true,
           }).done(function(data){
             resolve(data);  
           }).fail(function(data){
@@ -71,53 +111,3 @@ var loadPath = (method) => {
     });
 };
 
-
-var updateStarships = (data) => {
-    return new Promise((resolve, reject) => { 
-        $(containerID).html("<h1> Starships </h1>")
-        resolve(1)
-    });
-};
-
-var updateVehicles = (data) => {
-    return new Promise((resolve, reject) => { 
-        $(containerID).html("<h1> Vehicles </h1>")
-        resolve(1)
-    });
-};
-
-var updateSpecies = (data) => {
-    return new Promise((resolve, reject) => { 
-        $(containerID).html("<h1> Species </h1>")
-        resolve(1)
-    });
-};
-
-var updateFilms = (data) => {
-    return new Promise((resolve, reject) => { 
-        $(containerID).html("<h1> Films </h1>")
-        resolve(1)
-    });
-};
-
-
-var updatePeoples = (data) => {
-    return new Promise((resolve, reject) => {
-        var navCont = "<div id=\"container-navigation\"> ";
-        if(data.previous){
-            navCont += " <button onclick=\"loadPage('"+data.previous+"')\"> PREVIOUS </button>";
-        }
-        if(data.next){
-            navCont += " <button onclick=\"loadPage('"+data.next+"')\"> NEXT </button>";
-        }
-        navCont += " </div> <br/> <h5> TOTAL: "+data.count+"</h5>";
-
-        var itens = "";
-         data.results.map(item =>{
-            itens += "<h2>"+item.name+"</h2>";
-        });
-        $(containerID).html(navCont+itens);
-         
-        resolve(1);
-    });
-};
