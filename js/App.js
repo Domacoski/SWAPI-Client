@@ -1,4 +1,3 @@
- 
 
 const LOADER = "<img src='imgs/loader.gif' id='loading'></img>";
 const containerID = "#body-container";
@@ -94,20 +93,41 @@ var createCharactersToFilm = (characters) => {
                 );
         resolve(1);            
     });
-
 }
 
 var loadPath = (url) => {
     return new Promise((resolve, reject) => { 
-        $.ajax({
-            type: 'GET',
-            url: url,
-            cache: true,
-          }).done(function(data){
-            resolve(data);  
-          }).fail(function(data){
-              reject(data);
-          });
+        fromLocal(url).
+            then(r=> resolve(data)).
+            catch(e=> { 
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    cache: true,
+                  }).done(function(data){
+                    setPath(url, data).
+                    then(r=> resolve(data)).
+                    catch(e=> reject(0));
+                    }).fail(function(data){
+                      reject(data);
+                    });
+            });
+    });
+};
+var setPath = (url, data) => {
+    return new Promise((resolve, reject) => { 
+        localStorage.setItem(url, JSON.stringify(data)); 
+        resolve(1);      
     });
 };
 
+var fromLocal = (url) => {
+    return new Promise((resolve, reject) => {
+        const data = localStorage.getItem(url);
+        if(data){
+            resolve(JSON.parse(data));
+        }else{
+            reject(0);
+        }
+    });
+};
